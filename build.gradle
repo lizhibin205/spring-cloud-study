@@ -2,12 +2,13 @@ plugins {
 	id 'org.springframework.boot' version '2.3.2.RELEASE'
 	id 'io.spring.dependency-management' version '1.0.9.RELEASE'
 	id 'java'
+	id 'java-library'
+	id 'eclipse'
 }
-
 
 group = 'com.bytrees'
 version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '1.14'
+sourceCompatibility = '14'
 
 repositories {
 	maven { url 'http://maven.aliyun.com/nexus/content/groups/public/'}
@@ -15,6 +16,7 @@ repositories {
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter'
+	implementation 'org.springframework.boot:spring-boot-web'
 	testImplementation('org.springframework.boot:spring-boot-starter-test') {
 		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
 	}
