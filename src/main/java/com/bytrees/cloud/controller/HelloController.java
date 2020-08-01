@@ -1,11 +1,12 @@
 package com.bytrees.cloud.controller;
 
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 @RestController
 public class HelloController {
-	@GetMapping("/helo")
-	public String sayHello() {
-		StringBuilder strBuilder = new StringBuilder(16);
-		
-		return "hello world!";
-	}
+    @GetMapping("/hello")
+    public String sayHello() {
+        return "hello world!";
+    }
 }
