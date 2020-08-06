@@ -1,5 +1,6 @@
 package com.bytrees.cloud;
 
+import com.bytrees.cloud.response.BaseResponse;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +16,7 @@ public class HelloServiceTests {
 
     @Test
     public void sayHelloTest() {
-        ResponseEntity<String> result = restTemplate.getForEntity("http://cloud-study/hello", String.class);
-        Assertions.assertEquals("hello world!", result.getBody());
+        BaseResponse<String> result = restTemplate.getForObject("http://cloud-study/hello", BaseResponse.class);
+        Assertions.assertEquals("hello world!", result.getData());
     }
 }
