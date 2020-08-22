@@ -9,3 +9,4 @@ pluginManagement {
 
 rootProject.name = 'cloud'
 include 'spring-cloud-study-service'
+include 'spring-cloud-study-id-generator'
