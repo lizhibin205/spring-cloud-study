@@ -33,13 +33,13 @@ public class Generator {
     private final IdCreator idCreator;
     private final long machineId;
     private volatile long lastSecond;
-    private volatile long queue;
+    private volatile long sequence;
 
     /**
      * 生成ID序列
      * @return
      */
-    public synchronized long genId() {
+    public synchronized long genId(long type) {
         long nowSecond = TimeUtils.getNowSecond();
         //出现时钟回拨
         if (nowSecond < lastSecond) {
@@ -48,16 +48,17 @@ public class Generator {
         if (nowSecond > lastSecond) {
             //新的一秒，重置队列为0
             lastSecond = nowSecond;
-            queue = 0;
+            sequence = 0;
         } else {
             //当前秒，队列自增1，且要判断是否满足最大队列数
-            queue += 1;
-            if (queue >= idCreator.maxSeq()) {
+            sequence += 1;
+            long mask = sequence & idCreator.maxSequence();
+            if (mask == 0) {
                 //必须等待下一秒
-                nowSecond = TimeUtils.waitForNextSecond(nowSecond);
-                queue = 0;
+                lastSecond = TimeUtils.waitForNextSecond(nowSecond);
+                sequence = 0;
             }
         }
-        return idCreator.createId(nowSecond, queue, machineId);
+        return idCreator.createId(type, lastSecond, sequence, machineId);
     }
 }

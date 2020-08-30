@@ -8,7 +8,7 @@ public class IdCreatorTest {
     @Test
     public void create1() {
         Generator generator = Generator.getInstance(new DefaultTimeCreator(), 1);
-        long id = generator.genId();
+        long id = generator.genId(0);
         Assert.assertTrue(id > 0);
     }
 }
