@@ -28,6 +28,7 @@ public class Generator {
         this.idCreator = idCreator;
         this.machineId = machineId;
         this.lastSecond = TimeUtils.getNowSecond();
+        this.sequence = -1;
     }
 
     private final IdCreator idCreator;
@@ -52,8 +53,7 @@ public class Generator {
         } else {
             //当前秒，队列自增1，且要判断是否满足最大队列数
             sequence += 1;
-            long mask = sequence & idCreator.maxSequence();
-            if (mask == 0) {
+            if (sequence == idCreator.maxSequence()) {
                 //必须等待下一秒
                 lastSecond = TimeUtils.waitForNextSecond(nowSecond);
                 sequence = 0;
