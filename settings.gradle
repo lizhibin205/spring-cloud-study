@@ -10,3 +10,5 @@ pluginManagement {
 rootProject.name = 'spring-cloud-study'
 include 'spring-cloud-study-service'
 include 'spring-cloud-study-id-generator'
+include 'spring-cloud-study-kafka'
+include 'spring-cloud-study-protobuf'
