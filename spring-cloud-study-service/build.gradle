@@ -25,6 +25,9 @@ dependencies {
 	implementation 'org.codehaus.groovy:groovy-all:3.0.5'
 	implementation 'org.springframework.boot:spring-boot-starter-web'
 	implementation 'org.springframework.cloud:spring-cloud-starter-eureka:1.4.7.RELEASE'
+	implementation ('org.apache.zookeeper:zookeeper:3.4.6') {
+		exclude group: 'org.slf4j'
+	}
 	testImplementation('org.springframework.boot:spring-boot-starter-test') {
 		exclude group: 'org.junit.vintage', module: 'junit-vintage-engine'
 	}
