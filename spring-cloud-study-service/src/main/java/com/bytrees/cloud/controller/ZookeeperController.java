@@ -7,6 +7,7 @@ import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooDefs;
 import org.apache.zookeeper.ZooKeeper;
+import org.apache.zookeeper.data.Stat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,8 @@ public class ZookeeperController {
 
     @Autowired
     private ZooKeeper zk;
+    @Autowired
+    private Stat stat;
 
     @GetMapping("/getState")
     public BaseResponse<ZooKeeper.States> getState() {
@@ -36,11 +39,12 @@ public class ZookeeperController {
     @PostMapping("/create")
     public  BaseResponse<String> create(HttpServletRequest request) {
         String path  = ZookeeperUtils.fillPath(request.getParameter(REQUEST_PATH));
-        byte[] data  = ZookeeperUtils.fillData(request.getParameter("data"));
+        String data  = request.getParameter("data");
+        byte[] dataBytes  = ZookeeperUtils.fillData(data);
         CreateMode createMode = ZookeeperUtils.fillCreateMode(request.getParameter("mode"));
         try {
             logger.info("zookeeper create path:{}, data:{}", path, data);
-            String createResult = zk.create(path, data,
+            String createResult = zk.create(path, dataBytes,
                     ZooDefs.Ids.OPEN_ACL_UNSAFE, createMode);
             return BaseResponse.success(createResult);
         } catch (KeeperException | InterruptedException e) {
@@ -70,6 +74,33 @@ public class ZookeeperController {
             return BaseResponse.success(null);
         } catch (KeeperException | InterruptedException e) {
             logger.error("zookeeper getChildren error.", e);
+            return BaseResponse.fail(e.getMessage());
+        }
+    }
+
+    @GetMapping("/getData")
+    public BaseResponse<String> getData(HttpServletRequest request) {
+        String path  = ZookeeperUtils.fillPath(request.getParameter(REQUEST_PATH));
+        try {
+            byte[] data = zk.getData(path, false, stat);
+            return BaseResponse.success(new String(data, StandardCharsets.UTF_8));
+        } catch (KeeperException | InterruptedException e) {
+            logger.error("zookeeper getData error.", e);
+            return BaseResponse.fail(e.getMessage());
+        }
+    }
+
+    @PostMapping("/setData")
+    public BaseResponse<String> setData(HttpServletRequest request) {
+        String path  = ZookeeperUtils.fillPath(request.getParameter(REQUEST_PATH));
+        String data  = request.getParameter("data");
+        byte[] dataBytes  = ZookeeperUtils.fillData(data);
+        int version = NumberUtils.toInt(request.getParameter("version"), 0);
+        try {
+            zk.setData(path, dataBytes, version);
+            return BaseResponse.success(null);
+        } catch (KeeperException | InterruptedException e) {
+            logger.error("zookeeper setData error.", e);
             return BaseResponse.fail(e.getMessage());
         }
     }
