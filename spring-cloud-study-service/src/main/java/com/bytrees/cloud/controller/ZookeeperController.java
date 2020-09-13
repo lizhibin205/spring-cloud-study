@@ -34,16 +34,21 @@ public class ZookeeperController {
 
     @PostMapping("/create")
     public  BaseResponse<String> create(HttpServletRequest request) {
-        String path = request.getParameter("path");
+        String path  = request.getParameter("path");
         String data  = request.getParameter("data");
+        String mode  = request.getParameter("mode");
         if (StringUtils.isBlank(path) || StringUtils.isBlank(data)) {
             return BaseResponse.fail("path或data不能为空");
         }
         path = path.startsWith("/") ? path : "/" + path;
+        CreateMode createMode = CreateMode.EPHEMERAL;
+        if ("1".equals(mode)) {
+            createMode = CreateMode.PERSISTENT;
+        }
         try {
             logger.info("zookeeper create path:{}, data:{}", path, data);
             String createResult = zk.create(path, data.getBytes(StandardCharsets.UTF_8),
-                    ZooDefs.Ids.OPEN_ACL_UNSAFE, CreateMode.EPHEMERAL);
+                    ZooDefs.Ids.OPEN_ACL_UNSAFE, createMode);
             return BaseResponse.success(createResult);
         } catch (KeeperException | InterruptedException e) {
             logger.error("zookeeper create error.", e);
