@@ -10,6 +10,11 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 public class AdviceController {
     private static final Logger logger = LoggerFactory.getLogger(AdviceController.class);
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public BaseResponse<String> onIllegalArgumentException(IllegalArgumentException e) {
+        return new BaseResponse<>(400, e.getMessage(), null);
+    }
+
     @ExceptionHandler(Exception.class)
     public BaseResponse<String> onException(Exception e) {
         logger.error("AdviceController.onException", e);

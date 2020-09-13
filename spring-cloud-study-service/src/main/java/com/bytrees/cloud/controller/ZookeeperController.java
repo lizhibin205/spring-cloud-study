@@ -1,7 +1,8 @@
 package com.bytrees.cloud.controller;
 
 import com.bytrees.cloud.response.BaseResponse;
-import org.apache.commons.lang.StringUtils;
+import com.bytrees.cloud.zookeeper.ZookeeperUtils;
+import org.apache.commons.lang.math.NumberUtils;
 import org.apache.zookeeper.CreateMode;
 import org.apache.zookeeper.KeeperException;
 import org.apache.zookeeper.ZooDefs;
@@ -15,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.servlet.http.HttpServletRequest;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
@@ -23,6 +23,7 @@ import java.util.List;
 @RequestMapping("/zookeeper")
 public class ZookeeperController {
     private static final Logger logger = LoggerFactory.getLogger(ZookeeperController.class);
+    private static final String REQUEST_PATH = "path";
 
     @Autowired
     private ZooKeeper zk;
@@ -34,20 +35,12 @@ public class ZookeeperController {
 
     @PostMapping("/create")
     public  BaseResponse<String> create(HttpServletRequest request) {
-        String path  = request.getParameter("path");
-        String data  = request.getParameter("data");
-        String mode  = request.getParameter("mode");
-        if (StringUtils.isBlank(path) || StringUtils.isBlank(data)) {
-            return BaseResponse.fail("path或data不能为空");
-        }
-        path = path.startsWith("/") ? path : "/" + path;
-        CreateMode createMode = CreateMode.EPHEMERAL;
-        if ("1".equals(mode)) {
-            createMode = CreateMode.PERSISTENT;
-        }
+        String path  = ZookeeperUtils.fillPath(request.getParameter(REQUEST_PATH));
+        byte[] data  = ZookeeperUtils.fillData(request.getParameter("data"));
+        CreateMode createMode = ZookeeperUtils.fillCreateMode(request.getParameter("mode"));
         try {
             logger.info("zookeeper create path:{}, data:{}", path, data);
-            String createResult = zk.create(path, data.getBytes(StandardCharsets.UTF_8),
+            String createResult = zk.create(path, data,
                     ZooDefs.Ids.OPEN_ACL_UNSAFE, createMode);
             return BaseResponse.success(createResult);
         } catch (KeeperException | InterruptedException e) {
@@ -58,11 +51,7 @@ public class ZookeeperController {
 
     @GetMapping("/getChildren")
     public BaseResponse<List<String>> getChildren(HttpServletRequest request) {
-        String path = request.getParameter("path");
-        if (StringUtils.isBlank(path)) {
-            return BaseResponse.fail("path不能为空");
-        }
-        path = path.startsWith("/") ? path : "/" + path;
+        String path  = ZookeeperUtils.fillPath(request.getParameter(REQUEST_PATH));
         try {
             List<String> children = zk.getChildren(path, false);
             return BaseResponse.success(children);
@@ -74,13 +63,10 @@ public class ZookeeperController {
 
     @PostMapping("/delete")
     public BaseResponse<String> delete(HttpServletRequest request) {
-        String path = request.getParameter("path");
-        if (StringUtils.isBlank(path)) {
-            return BaseResponse.fail("path不能为空");
-        }
-        path = path.startsWith("/") ? path : "/" + path;
+        String path  = ZookeeperUtils.fillPath(request.getParameter(REQUEST_PATH));
+        String version = request.getParameter("version");
         try {
-            zk.delete(path, 1);
+            zk.delete(path, NumberUtils.toInt(version, 0));
             return BaseResponse.success(null);
         } catch (KeeperException | InterruptedException e) {
             logger.error("zookeeper getChildren error.", e);
