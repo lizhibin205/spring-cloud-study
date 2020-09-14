@@ -1,6 +1,7 @@
 package com.bytrees.cloud.controller;
 
 import com.bytrees.cloud.response.BaseResponse;
+import com.bytrees.cloud.response.zookeeper.Data;
 import com.bytrees.cloud.zookeeper.ZookeeperUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.apache.zookeeper.CreateMode;
@@ -28,8 +29,6 @@ public class ZookeeperController {
 
     @Autowired
     private ZooKeeper zk;
-    @Autowired
-    private Stat stat;
 
     @GetMapping("/getState")
     public BaseResponse<ZooKeeper.States> getState() {
@@ -69,7 +68,7 @@ public class ZookeeperController {
     public BaseResponse<String> delete(HttpServletRequest request) {
         String path  = ZookeeperUtils.fillPath(request.getParameter(REQUEST_PATH));
         int version = NumberUtils.toInt(request.getParameter("version"), 0);
-        if (version <= 0) {
+        if (version < 0) {
             return BaseResponse.fail("version参数错误");
         }
         try {
@@ -83,11 +82,15 @@ public class ZookeeperController {
     }
 
     @GetMapping("/getData")
-    public BaseResponse<String> getData(HttpServletRequest request) {
+    public BaseResponse<Data> getData(HttpServletRequest request) {
         String path  = ZookeeperUtils.fillPath(request.getParameter(REQUEST_PATH));
         try {
+            Stat stat = new Stat();
             byte[] data = zk.getData(path, false, stat);
-            return BaseResponse.success(new String(data, StandardCharsets.UTF_8));
+            Data result = new Data();
+            result.setVersion(stat.getVersion());
+            result.setData(new String(data, StandardCharsets.UTF_8));
+            return BaseResponse.success(result);
         } catch (KeeperException | InterruptedException e) {
             logger.error("zookeeper getData error.", e);
             return BaseResponse.fail(e.getMessage());
@@ -100,7 +103,7 @@ public class ZookeeperController {
         String data  = request.getParameter("data");
         byte[] dataBytes  = ZookeeperUtils.fillData(data);
         int version = NumberUtils.toInt(request.getParameter("version"), 0);
-        if (version <= 0) {
+        if (version < 0) {
             return BaseResponse.fail("version参数错误");
         }
         try {

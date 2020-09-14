@@ -1,7 +1,6 @@
 package com.bytrees.cloud.zookeeper;
 
 import org.apache.zookeeper.ZooKeeper;
-import org.apache.zookeeper.data.Stat;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -19,10 +18,5 @@ public class ZookeeperConfiguration {
     public ZooKeeper geZookeeper() throws IOException {
         ZookeeperWatch watcher = new ZookeeperWatch();
         return new ZooKeeper(connection, timeout, watcher);
-    }
-
-    @Bean
-    public Stat getStat() {
-        return new Stat();
     }
 }
