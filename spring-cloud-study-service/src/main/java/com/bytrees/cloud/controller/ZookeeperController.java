@@ -43,7 +43,7 @@ public class ZookeeperController {
         byte[] dataBytes  = ZookeeperUtils.fillData(data);
         CreateMode createMode = ZookeeperUtils.fillCreateMode(request.getParameter("mode"));
         try {
-            logger.info("zookeeper create path:{}, data:{}", path, data);
+            logger.info("zookeeper create path:{}, data:{}, mode:{}", path, data, createMode);
             String createResult = zk.create(path, dataBytes,
                     ZooDefs.Ids.OPEN_ACL_UNSAFE, createMode);
             return BaseResponse.success(createResult);
@@ -68,9 +68,13 @@ public class ZookeeperController {
     @PostMapping("/delete")
     public BaseResponse<String> delete(HttpServletRequest request) {
         String path  = ZookeeperUtils.fillPath(request.getParameter(REQUEST_PATH));
-        String version = request.getParameter("version");
+        int version = NumberUtils.toInt(request.getParameter("version"), 0);
+        if (version <= 0) {
+            return BaseResponse.fail("version参数错误");
+        }
         try {
-            zk.delete(path, NumberUtils.toInt(version, 0));
+            logger.info("zookeeper delete path:{}, version:{}", path, version);
+            zk.delete(path, version);
             return BaseResponse.success(null);
         } catch (KeeperException | InterruptedException e) {
             logger.error("zookeeper getChildren error.", e);
@@ -91,14 +95,18 @@ public class ZookeeperController {
     }
 
     @PostMapping("/setData")
-    public BaseResponse<String> setData(HttpServletRequest request) {
+    public BaseResponse<Stat> setData(HttpServletRequest request) {
         String path  = ZookeeperUtils.fillPath(request.getParameter(REQUEST_PATH));
         String data  = request.getParameter("data");
         byte[] dataBytes  = ZookeeperUtils.fillData(data);
         int version = NumberUtils.toInt(request.getParameter("version"), 0);
+        if (version <= 0) {
+            return BaseResponse.fail("version参数错误");
+        }
         try {
-            zk.setData(path, dataBytes, version);
-            return BaseResponse.success(null);
+            logger.info("zookeeper setData path:{}, data:{}, version:{}", path, data, version);
+            Stat stat = zk.setData(path, dataBytes, version);
+            return BaseResponse.success(stat);
         } catch (KeeperException | InterruptedException e) {
             logger.error("zookeeper setData error.", e);
             return BaseResponse.fail(e.getMessage());
