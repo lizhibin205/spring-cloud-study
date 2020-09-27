@@ -14,22 +14,42 @@ public class BaseResponse<T> {
         this.data = data;
     }
 
+    /**
+     * 返回成功的状态
+     * @param data
+     * @return
+     */
     public static <T> BaseResponse<T> success(T data) {
-        return new BaseResponse(SUCCESS_CODE, SUCCESS_MESSAGE, data);
+        return new BaseResponse<>(SUCCESS_CODE, SUCCESS_MESSAGE, data);
     }
 
+    /**
+     * 返回成功的状态，包含消息文案
+     * @param message
+     * @param data
+     * @return
+     */
     public static <T> BaseResponse<T> success(String message, T data) {
-        return new BaseResponse(SUCCESS_CODE, message, data);
+        return new BaseResponse<>(SUCCESS_CODE, message, data);
     }
+
+    /**
+     * 返回失败的状态
+     * @param message
+     * @return
+     */
     public static <T> BaseResponse<T> fail(String message) {
-        return new BaseResponse(FAIL_CODE, message, null);
+        return new BaseResponse<>(FAIL_CODE, message, null);
     }
+
     public Integer getCode() {
         return code;
     }
+
     public String getMessage() {
         return message;
     }
+
     public T getData() {
         return data;
     }
