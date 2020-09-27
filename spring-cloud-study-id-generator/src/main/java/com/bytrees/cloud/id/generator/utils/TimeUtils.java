@@ -12,15 +12,34 @@ public class TimeUtils {
     }
 
     /**
+     * 返回当前微秒数
+     * @return
+     */
+    public static long getNowMillis() {
+        return System.currentTimeMillis();
+    }
+
+    /**
      * 等待并返回下一个Unix时间
      * @param nowSecond
      */
     public static long waitForNextSecond(long nowSecond) {
         while (true) {
             long nextSecond = getNowSecond();
-            if (nextSecond > nowSecond) {
-                return nextSecond;
+            // 线程休眠，避免CPU占用率升高
+            if (nextSecond <= nowSecond) {
+                long sleepTime = (nowSecond + 1) * 1000 - getNowMillis();
+                if (sleepTime > 0) {
+                    try {
+                        Thread.sleep(sleepTime);
+                    } catch (InterruptedException e) {
+                        
+                        Thread.currentThread().interrupt();
+                    }
+                }
+                continue;
             }
+            return nextSecond;
         }
     }
 }
