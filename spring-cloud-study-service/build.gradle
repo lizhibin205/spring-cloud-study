@@ -20,6 +20,8 @@ dependencyManagement{
 	}
 }
 
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
 dependencies {
 	implementation project(':spring-cloud-study-id-generator')
 	implementation 'org.codehaus.groovy:groovy-all:3.0.5'

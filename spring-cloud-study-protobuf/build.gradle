@@ -12,6 +12,8 @@ repositories {
     maven { url 'http://maven.aliyun.com/nexus/content/groups/public/'}
 }
 
+[compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
 dependencies {
     implementation 'com.google.protobuf:protobuf-java:3.8.0'
     testCompile group: 'org.junit.platform', name: 'junit-platform-launcher', version:'1.2.0'
