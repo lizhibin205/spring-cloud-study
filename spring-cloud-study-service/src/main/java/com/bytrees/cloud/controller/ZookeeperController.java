@@ -46,8 +46,12 @@ public class ZookeeperController {
             String createResult = zk.create(path, dataBytes,
                     ZooDefs.Ids.OPEN_ACL_UNSAFE, createMode);
             return BaseResponse.success(createResult);
-        } catch (KeeperException | InterruptedException e) {
+        } catch (KeeperException e) {
             logger.error("zookeeper create error.", e);
+            return BaseResponse.fail(e.getMessage());
+        } catch (InterruptedException e) {
+            logger.error("zookeeper create error.", e);
+            Thread.currentThread().interrupt();
             return BaseResponse.fail(e.getMessage());
         }
     }
@@ -58,8 +62,12 @@ public class ZookeeperController {
         try {
             List<String> children = zk.getChildren(path, false);
             return BaseResponse.success(children);
-        } catch (KeeperException | InterruptedException e) {
+        } catch (KeeperException e) {
             logger.error("zookeeper getChildren error.", e);
+            return BaseResponse.fail(e.getMessage());
+        } catch (InterruptedException e) {
+            logger.error("zookeeper getChildren error.", e);
+            Thread.currentThread().interrupt();
             return BaseResponse.fail(e.getMessage());
         }
     }
@@ -75,8 +83,12 @@ public class ZookeeperController {
             logger.info("zookeeper delete path:{}, version:{}", path, version);
             zk.delete(path, version);
             return BaseResponse.success(null);
-        } catch (KeeperException | InterruptedException e) {
-            logger.error("zookeeper getChildren error.", e);
+        } catch (KeeperException e) {
+            logger.error("zookeeper delete error.", e);
+            return BaseResponse.fail(e.getMessage());
+        } catch (InterruptedException e) {
+            logger.error("zookeeper delete error.", e);
+            Thread.currentThread().interrupt();
             return BaseResponse.fail(e.getMessage());
         }
     }
@@ -91,8 +103,12 @@ public class ZookeeperController {
             result.setVersion(stat.getVersion());
             result.setData(new String(data, StandardCharsets.UTF_8));
             return BaseResponse.success(result);
-        } catch (KeeperException | InterruptedException e) {
+        } catch (KeeperException e) {
             logger.error("zookeeper getData error.", e);
+            return BaseResponse.fail(e.getMessage());
+        } catch (InterruptedException e) {
+            logger.error("zookeeper getData error.", e);
+            Thread.currentThread().interrupt();
             return BaseResponse.fail(e.getMessage());
         }
     }
@@ -110,8 +126,12 @@ public class ZookeeperController {
             logger.info("zookeeper setData path:{}, data:{}, version:{}", path, data, version);
             Stat stat = zk.setData(path, dataBytes, version);
             return BaseResponse.success(stat);
-        } catch (KeeperException | InterruptedException e) {
+        } catch (KeeperException e) {
             logger.error("zookeeper setData error.", e);
+            return BaseResponse.fail(e.getMessage());
+        } catch (InterruptedException e) {
+            logger.error("zookeeper setData error.", e);
+            Thread.currentThread().interrupt();
             return BaseResponse.fail(e.getMessage());
         }
     }
